@@ -94,8 +94,8 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # Converts the JSON data keys to match expected environment variables.
     # !!! Does not handle Secrets Manager password rotation as data is stored into config
     # file after initial startup. !!!
-	if [ -n "$WORDPRESS_SECRETS" ]; then
-        eval $(echo $WORDPRESS_SECRETS |jq -r 'with_entries(select(.key != "dbClusterIdentifier"))
+	if [ -v WORDPRESS_SECRETS ]; then
+        eval $(echo "${WORDPRESS_SECRETS}" |jq -r 'with_entries(select(.key != "dbClusterIdentifier"))
             | with_entries(if .key == "username" then .key = "user" else . end)
             | with_entries(.key |= ascii_upcase)
             | with_entries(.key |= "WORDPRESS_DB_" + .) | to_entries
