@@ -95,7 +95,11 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
     # !!! Does not handle Secrets Manager password rotation as data is stored into config
     # file after initial startup. !!!
 	if [ "$WORDPRESS_SECRETS" ]; then
-        eval $(echo $WORDPRESS_SECRETS |jq -r 'with_entries (select(.key != "dbClusterIdentifier")) | with_entries(if .key =="username" then .key = "user" else . end ) | with_entries(.key |= "WORDPRESS_DB_" + . ) | with_entries (.key |= ascii_upcase) | to_entries | map ( "\(.key)=\"\(.value | tostring)\"" ) | .[]')
+        eval $(echo $WORDPRESS_SECRETS |jq -r 'with_entries(select(.key != "dbClusterIdentifier"))
+            | with_entries(if .key == "username" then .key = "user" else . end)
+            | with_entries(.key |= ascii_upcase)
+            | with_entries(.key |= "WORDPRESS_DB_" + .) | to_entries
+            | map("\(.key)=\"\(.value | tostring)\"") | .[]')
     fi
 
 	# allow any of these "Authentication Unique Keys and Salts." to be specified via
